@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
 /**
  * Sample React Native App
@@ -39,7 +40,7 @@ const App = () => {
 
   const getApplication = () => {
     setStatus(!status);
-    RNInstalledApplication.getApps()
+    RNInstalledApplication.getNonSystemApps()
       .then(apps => {
         setData(apps);
       })
@@ -140,6 +141,7 @@ const App = () => {
   //   }
   // };
   //text
+
   const renderItem = ({item}) => (
     <View>
       <Text style={{fontSize: 20}}>{item.appName}</Text>
