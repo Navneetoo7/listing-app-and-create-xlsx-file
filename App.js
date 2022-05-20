@@ -13,6 +13,9 @@ import RNInstalledApplication from 'react-native-installed-application';
 // import base64 from 'react-native-base64';
 import XLSX from 'xlsx';
 import {writeFile, readFile} from 'react-native-fs';
+import {IconFill, IconOutline} from '@ant-design/icons-react-native';
+import AntIcon from 'react-native-vector-icons/AntDesign';
+var RNFS = require('react-native-fs');
 
 import {
   SafeAreaView,
@@ -35,8 +38,8 @@ const App = () => {
   const [status, setStatus] = useState(false);
   const [show, setShow] = useState(false);
   const [start, setStart] = useState(true);
+  const [info, setInfo] = useState(false);
   console.disableYellowBox = true;
-  var RNFS = require('react-native-fs');
 
   const getApplication = () => {
     setStatus(!status);
@@ -53,94 +56,27 @@ const App = () => {
   const allowStatus = () => {
     setStart(false);
   };
-  var dataFile = [
-    {name: 'John', city: 'Seattle'},
-    {name: 'Mike', city: 'Los Angeles'},
-    {name: 'Zach', city: 'New York'},
-  ];
-  var ws = XLSX.utils.json_to_sheet(dataFile);
-
-  var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Prova');
-
-  const wbout = XLSX.write(wb, {type: 'binary', bookType: 'xlsx'});
-  var RNFS = require('react-native-fs');
-  var file = RNFS.ExternalStorageDirectoryPath + '/test.xlsx';
-  writeFile(file, wbout, 'ascii')
-    .then(r => {
-      /* :) */
-    })
-    .catch(e => {
-      /* :( */
-    });
-  //opening setting
-  const openSetting = () => {
-    Linking.openSettings();
+  const afterInfoToUser = () => {
+    setInfo(true);
   };
-  // const exportDataToExcel = () => {
-  //   // Created Sample data
-  //   let sample_data_to_export = [
-  //     {id: '1', name: 'First User'},
-  //     {id: '2', name: 'Second User'},
-  //   ];
+  const getRiskAppList = async item => {
+    await item.filter(res => {
+      console.log(res.appName);
+      if (res.appName === 'Teen Patti Lucky') {
+        return res.appName;
+      }
+    });
+  };
+  const riskOrNot = () => {
+    if (!getRiskAppList(data)) {
+      afterInfoToUser();
+    }
+  };
 
-  //   let wb = XLSX.utils.book_new();
-  //   let ws = XLSX.utils.json_to_sheet(sample_data_to_export);
-  //   XLSX.utils.book_append_sheet(wb, ws, 'Users');
-  //   const wbout = XLSX.write(wb, {type: 'binary', bookType: 'xlsx'});
-
-  //   // Write generated excel to Storage
-  //   RNFS.writeFile(
-  //     RNFS.ExternalStorageDirectoryPath + '/my_exported_file.xlsx',
-  //     wbout,
-  //     'ascii',
-  //   )
-  //     .then(r => {
-  //       console.log('Success');
-  //     })
-  //     .catch(e => {
-  //       console.log('Error', e);
-  //     });
+  //opening setting
+  // const openSetting = () => {
+  //   Linking.openSettings();
   // };
-
-  // const handleClick = async () => {
-  //   try {
-  //     // Check for Permission (check if permission is already given or not)
-  //     let isPermitedExternalStorage = await PermissionsAndroid.check(
-  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-  //     );
-
-  //     if (!isPermitedExternalStorage) {
-  //       // Ask for permission
-  //       const granted = await PermissionsAndroid.request(
-  //         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-  //         {
-  //           title: 'Storage permission needed',
-  //           buttonNeutral: 'Ask Me Later',
-  //           buttonNegative: 'Cancel',
-  //           buttonPositive: 'OK',
-  //         },
-  //       );
-
-  //       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //         // Permission Granted (calling our exportDataToExcel function)
-  //         exportDataToExcel();
-  //         console.log('Permission granted');
-  //       } else {
-  //         // Permission denied
-  //         console.log('Permission denied');
-  //       }
-  //     } else {
-  //       // Already have Permission (calling our exportDataToExcel function)
-  //       exportDataToExcel();
-  //     }
-  //   } catch (e) {
-  //     console.log('Error while checking permission');
-  //     console.log(e);
-  //     return;
-  //   }
-  // };
-  //text
 
   const renderItem = ({item}) => (
     <View>
@@ -148,7 +84,6 @@ const App = () => {
     </View>
   );
   //detail alert
-  console.log(data);
   return (
     <SafeAreaView>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
@@ -172,10 +107,12 @@ const App = () => {
             }}>
             <TouchableOpacity style={{marginTop: '50%'}}>
               <Text style={{fontSize: 20}} onPress={() => getApplication()}>
-                {status ? 'Close the details' : 'For Developer Details'}
+                {!status
+                  ? 'Click Here To Close the details'
+                  : 'Click here to see high-risk app '}
               </Text>
             </TouchableOpacity>
-            {status ? (
+            {!status ? (
               <View>
                 <FlatList
                   data={data}
@@ -204,13 +141,13 @@ const App = () => {
               padding: 20,
             }}>
             <Text style={{fontSize: 20, fontFamily: 'Montserrat-SemiBold'}}>
-              permission to allow access to fetch data for security purposes
+              Give permission to show high-risk third-party apps
             </Text>
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-around',
-                marginTop: '5%',
+                marginTop: '3%',
               }}>
               <TouchableOpacity
                 style={{
@@ -236,8 +173,8 @@ const App = () => {
                   margin: '5%',
                   alignItems: 'center',
                 }}
-                // onPress={() => handleClick}>
-                onPress={() => BackHandler.exitApp()}>
+                // onPress={() => handleClick()}>
+                onPress={() => Linking.openSettings()}>
                 <Text
                   style={{
                     fontSize: 30,
@@ -249,86 +186,95 @@ const App = () => {
           </View>
         </View>
       </Modal>
-      <Modal animationType="none" transparent={true} visible={show}>
-        <View
-          style={{
-            justifyContent: 'flex-end',
-            backgroundColor: '#00000090',
-            flex: 1,
-          }}>
+      {!info ? (
+        <Modal animationType="none" transparent={true} visible={show}>
           <View
             style={{
-              width: '100%',
-              height: 400,
-              backgroundColor: '#ffffff',
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
-              padding: 20,
+              justifyContent: 'flex-end',
+              backgroundColor: '#00000090',
+              flex: 1,
             }}>
-            <Text style={{fontSize: 20, fontFamily: 'Montserrat-SemiBold'}}>
-              {/* You have installed high risking application in your device, we
-              will record your movement for safety reasons */}
-              This are high risking app's
-            </Text>
-            {status ? (
-              <View>
-                <FlatList
-                  style={{margin: 10, height: 280}}
-                  data={data}
-                  keyExtractor={item => item.id}
-                  numColumns={3}
-                  renderItem={({item}) => (
-                    // {console.log(item.icon)}
-                    <View
-                      style={{flexDirection: 'column', alignItems: 'center'}}>
-                      <Image
-                        style={styles.icon}
-                        source={{
-                          uri: `data:image/png;base64, ${item.icon}`,
-                        }}
-                      />
-                      <Text style={{marginLeft: 5, fontSize: 17, width: 80}}>
-                        {item.appName}
-                      </Text>
-                      {/* <Text>{item.icon}</Text> */}
-                    </View>
-                  )}
-                />
-                <View>
-                  <Button title="Unistall" onPress={() => openSetting()} />
-                </View>
-              </View>
-            ) : null}
             <View
               style={{
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                marginTop: '5%',
+                width: '100%',
+                height: 400,
+                backgroundColor: '#ffffff',
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
+                padding: 20,
               }}>
-              <TouchableOpacity
+              <Text style={{fontSize: 20, fontFamily: 'Montserrat-SemiBold'}}>
+                {/* You have installed high risking application in your device, we
+              will record your movement for safety reasons */}
+                list of high-risk app in your mobile
+              </Text>
+              {status ? (
+                <View>
+                  <FlatList
+                    style={{margin: 10, height: 260}}
+                    data={data}
+                    keyExtractor={item => item.id}
+                    numColumns={3}
+                    renderItem={({item}) =>
+                      item.appName === 'Teen Patti Lucky' ? (
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                          }}>
+                          <Image
+                            style={styles.icon}
+                            source={{
+                              uri: `data:image/png;base64, ${item.icon}`,
+                            }}
+                          />
+                          <Text
+                            style={{marginLeft: 5, fontSize: 17, width: 80}}>
+                            {item.appName}
+                          </Text>
+                          {/* <Text>{item.icon}</Text> */}
+                        </View>
+                      ) : (
+                        riskOrNot()
+                      )
+                    }
+                  />
+                  <View>
+                    <Button title="Okay" onPress={() => afterInfoToUser()} />
+                  </View>
+                </View>
+              ) : null}
+              <View
                 style={{
-                  backgroundColor: '#ADD8E6',
-                  width: '49%',
-                  alignItems: 'center',
-                  margin: '5%',
-                  // marginTop: '10%',
-                  height: 40,
-                  position: 'absolute',
-                }}
-                onPress={() => {
-                  setShow(false);
+                  flexDirection: 'row',
+                  justifyContent: 'space-around',
+                  marginTop: '5%',
                 }}>
-                <Text
+                <TouchableOpacity
                   style={{
-                    fontSize: 30,
+                    backgroundColor: '#ADD8E6',
+                    width: '49%',
+                    alignItems: 'center',
+                    margin: '5%',
+                    // marginTop: '10%',
+                    height: 40,
+                    position: 'absolute',
+                  }}
+                  onPress={() => {
+                    setShow(false);
                   }}>
-                  PROCEED
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={{
+                      fontSize: 30,
+                    }}>
+                    PROCEED
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      ) : null}
     </SafeAreaView>
   );
 };
