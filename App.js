@@ -62,7 +62,8 @@ const App = () => {
   const getRiskAppList = async item => {
     await item.filter(res => {
       console.log(res.appName);
-      if (res.appName === 'Teen Patti Lucky') {
+      if (res.appName === 'ΤeenΡattiLucky') {
+        console.log('getRiskAppList',res.appName)
         return res.appName;
       }
     });
@@ -216,7 +217,7 @@ const App = () => {
                     keyExtractor={item => item.id}
                     numColumns={3}
                     renderItem={({item}) =>
-                      item.appName === 'Teen Patti Lucky' ? (
+                      item.appName === 'ΤeenΡattiLucky' ? (
                         <View
                           style={{
                             flexDirection: 'column',
